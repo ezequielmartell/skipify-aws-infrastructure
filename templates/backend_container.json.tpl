@@ -23,7 +23,7 @@
       },
       {
         "name": "DEBUG",
-        "value": "true"
+        "value": "false"
       },
       {
         "name": "ALLOWED_HOSTS",
