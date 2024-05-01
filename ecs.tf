@@ -1,3 +1,19 @@
+locals {
+  container_vars = {
+      region = var.region
+      image     = aws_ecr_repository.backend.repository_url
+      log_group  = aws_cloudwatch_log_group.prod_backend.name
+      rds_db_name  = var.prod_rds_db_name
+      rds_username = var.prod_rds_username
+      rds_password = var.prod_rds_password
+      rds_hostname = aws_db_instance.prod.address
+      domain = var.prod_backend_domain
+      secret_key = var.prod_backend_secret_key
+      sqs_access_key = aws_iam_access_key.prod_sqs.id
+      sqs_secret_key = aws_iam_access_key.prod_sqs.secret
+      sqs_name = aws_sqs_queue.prod.name
+  }
+}
 # Production cluster
 resource "aws_ecs_cluster" "prod" {
   name = "prod"
@@ -13,18 +29,14 @@ resource "aws_ecs_task_definition" "prod_backend_web" {
   family = "backend-web"
   container_definitions = templatefile(
     "templates/backend_container.json.tpl",
-    {
-      region     = var.region
+    merge(
+      local.container_vars,
+      {
       name       = "prod-backend-web"
-      image      = aws_ecr_repository.backend.repository_url
       command    = ["gunicorn", "-w", "3", "-b", ":8000", "django_aws.wsgi:application"]
-      log_group  = aws_cloudwatch_log_group.prod_backend.name
       log_stream = aws_cloudwatch_log_stream.prod_backend_web.name
-      rds_db_name  = var.prod_rds_db_name
-      rds_username = var.prod_rds_username
-      rds_password = var.prod_rds_password
-      rds_hostname = aws_db_instance.prod.address
     },
+    )
   )
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
@@ -127,3 +139,103 @@ resource "aws_cloudwatch_log_stream" "prod_backend_web" {
   name           = "prod-backend-web"
   log_group_name = aws_cloudwatch_log_group.prod_backend.name
 }
+
+# Cloudwatch Logs
+
+resource "aws_cloudwatch_log_stream" "prod_backend_worker" {
+  name           = "prod-backend-worker"
+  log_group_name = aws_cloudwatch_log_group.prod_backend.name
+}
+
+resource "aws_cloudwatch_log_stream" "prod_backend_beat" {
+  name           = "prod-backend-beat"
+  log_group_name = aws_cloudwatch_log_group.prod_backend.name
+}
+
+# Worker
+
+resource "aws_ecs_task_definition" "prod_backend_worker" {
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+
+  family = "backend-worker"
+  container_definitions = templatefile(
+    "templates/backend_container.json.tpl",
+    merge(
+      local.container_vars,
+      {
+        name       = "prod-backend-worker"
+        command    = ["celery", "-A", "django_aws", "worker", "--loglevel", "info"]
+        log_stream = aws_cloudwatch_log_stream.prod_backend_worker.name
+      },
+    )
+  )
+  depends_on = [aws_sqs_queue.prod, aws_db_instance.prod]
+  execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  task_role_arn      = aws_iam_role.prod_backend_task.arn
+}
+
+resource "aws_ecs_service" "prod_backend_worker" {
+  name                               = "prod-backend-worker"
+  cluster                            = aws_ecs_cluster.prod.id
+  task_definition                    = aws_ecs_task_definition.prod_backend_worker.arn
+  desired_count                      = 1
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
+  launch_type                        = "FARGATE"
+  scheduling_strategy                = "REPLICA"
+  enable_execute_command             = true
+
+  network_configuration {
+    security_groups  = [aws_security_group.prod_ecs_backend.id]
+    subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
+    assign_public_ip = false
+  }
+}
+
+# Beat
+
+resource "aws_ecs_task_definition" "prod_backend_beat" {
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+
+  family = "backend-beat"
+  container_definitions = templatefile(
+    "templates/backend_container.json.tpl",
+    merge(
+      local.container_vars,
+      {
+        name       = "prod-backend-beat"
+        command    = ["celery", "-A", "django_aws", "beat", "--loglevel", "info"]
+        log_stream = aws_cloudwatch_log_stream.prod_backend_beat.name
+      },
+    )
+  )
+  depends_on = [aws_sqs_queue.prod, aws_db_instance.prod]
+  execution_role_arn = aws_iam_role.ecs_task_execution.arn
+  task_role_arn      = aws_iam_role.prod_backend_task.arn
+}
+
+resource "aws_ecs_service" "prod_backend_beat" {
+  name                               = "prod-backend-beat"
+  cluster                            = aws_ecs_cluster.prod.id
+  task_definition                    = aws_ecs_task_definition.prod_backend_beat.arn
+  desired_count                      = 1
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
+  launch_type                        = "FARGATE"
+  scheduling_strategy                = "REPLICA"
+  enable_execute_command             = true
+
+  network_configuration {
+    security_groups  = [aws_security_group.prod_ecs_backend.id]
+    subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
+    assign_public_ip = false
+  }
+}
+
+

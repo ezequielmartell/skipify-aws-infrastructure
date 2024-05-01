@@ -35,3 +35,16 @@ variable "prod_rds_instance_class" {
   description = "RDS instance type"
   default     = "db.t4g.micro"
 }
+
+variable "prod_base_domain" {
+  description = "Base domain for production"
+  default = "ezdoes.xyz"
+}
+variable "prod_backend_domain" {
+  description = "Backend web domain for production"
+  default = "spotify.ezdoes.xyz"
+}
+
+variable "prod_backend_secret_key" {
+  description = "production Django's SECRET_KEY"
+}
