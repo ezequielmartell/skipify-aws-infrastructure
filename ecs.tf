@@ -167,7 +167,7 @@ resource "aws_ecs_task_definition" "prod_backend_worker" {
       local.container_vars,
       {
         name       = "prod-backend-worker"
-        command    = ["celery", "-A", "django_aws", "worker", "--loglevel", "info"]
+        command    = ["celery", "-A", "django_aws", "worker", "--loglevel", "warning"]
         log_stream = aws_cloudwatch_log_stream.prod_backend_worker.name
       },
     )
@@ -210,7 +210,7 @@ resource "aws_ecs_task_definition" "prod_backend_beat" {
       local.container_vars,
       {
         name       = "prod-backend-beat"
-        command    = ["celery", "-A", "django_aws", "beat", "--loglevel", "info"]
+        command    = ["celery", "-A", "django_aws", "beat", "--loglevel", "warning"]
         log_stream = aws_cloudwatch_log_stream.prod_backend_beat.name
       },
     )

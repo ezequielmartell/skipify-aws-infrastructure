@@ -40,11 +40,3 @@ resource "aws_route53_record" "prod_backend_a" {
     evaluate_target_health = true
   }
 }
-
-resource "aws_route53_record" "spotify-local" {
-  zone_id = aws_route53_zone.prod.zone_id
-  name    = "local.spotify"
-  type    = "A"
-  ttl     = 300
-  records = ["192.168.210.18"]
-}

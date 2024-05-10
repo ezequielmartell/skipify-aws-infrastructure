@@ -42,7 +42,7 @@ variable "prod_base_domain" {
 }
 variable "prod_backend_domain" {
   description = "Backend web domain for production"
-  default = "spotify.ezdoes.xyz"
+  default = "skipify.ezdoes.xyz"
 }
 
 variable "prod_backend_secret_key" {
