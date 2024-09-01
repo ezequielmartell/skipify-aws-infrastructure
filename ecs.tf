@@ -51,13 +51,13 @@ resource "aws_ecs_service" "prod_backend_web" {
   deployment_maximum_percent         = 200
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
-
+/*
   load_balancer {
     target_group_arn = aws_lb_target_group.prod_backend.arn
     container_name   = "prod-backend-web"
     container_port   = 8000
   }
-
+*/
   network_configuration {
     security_groups  = [aws_security_group.prod_ecs_backend.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
@@ -70,11 +70,12 @@ resource "aws_security_group" "prod_ecs_backend" {
   name        = "prod-ecs-backend"
   vpc_id      = aws_vpc.prod.id
 
+  #need to make this rule be a set group instead of hard coded like this
   ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.prod_lb.id]
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = ["sg-02b0c22c3a6ddab6d"]
   }
 
   egress {

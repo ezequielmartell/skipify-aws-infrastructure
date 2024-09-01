@@ -36,3 +36,4 @@ terraform.rc
 .idea/
 .DS_Store
 .env
+*.old
