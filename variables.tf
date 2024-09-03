@@ -13,7 +13,7 @@ variable "availability_zones" {
   default     = ["us-east-2a", "us-east-2c"]
 }
 
-variable "ecs_prod_backend_retention_days" {
+variable "ecs_prod_retention_days" {
   description = "Retention period for backend logs"
   default     = 30
 }
@@ -40,8 +40,8 @@ variable "prod_base_domain" {
   description = "Base domain for production"
   default = "ezdoes.xyz"
 }
-variable "prod_backend_domain" {
-  description = "Backend web domain for production"
+variable "prod_domain" {
+  description = "domain for production"
   default = "skipify.ezdoes.xyz"
 }
 

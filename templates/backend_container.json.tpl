@@ -23,7 +23,7 @@
       },
       {
         "name": "DEBUG",
-        "value": "false"
+        "value": "true"
       },
       {
         "name": "ALLOWED_HOSTS",
@@ -48,9 +48,15 @@
       {
         "name": "CSRF_COOKIE_SECURE",
         "value": "true"
+      },
+      {
+        "name": "CSRF_COOKIE_SECURE",
+        "value": "true"
+      },
+      {
+        "name": "CSRF_TRUSTED_ORIGIN",
+        "value": "https://${domain}"
       }
-      
-
     ],
     "healthcheck": {
       "command": ["CMD-SHELL", "echo 'healthy' || exit 1"]
