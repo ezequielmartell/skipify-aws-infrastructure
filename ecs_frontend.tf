@@ -1,8 +1,8 @@
 locals {
   frontend_vars = {
-      region = var.region
-      image     = aws_ecr_repository.frontend.repository_url
-      log_group  = aws_cloudwatch_log_group.prod.name
+    region    = var.region
+    image     = aws_ecr_repository.frontend.repository_url
+    log_group = aws_cloudwatch_log_group.prod.name
   }
 }
 
@@ -19,14 +19,18 @@ resource "aws_ecs_task_definition" "prod_frontend_web" {
     merge(
       local.frontend_vars,
       {
-      name       = "prod-frontend-web"
-      command    = ["nginx", "-g", "daemon off;"]
-      log_stream = aws_cloudwatch_log_stream.prod_frontend_web.name
-    },
+        name       = "prod-frontend-web"
+        command    = ["nginx", "-g", "daemon off;"]
+        log_stream = aws_cloudwatch_log_stream.prod_frontend_web.name
+      },
     )
   )
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_frontend_web" {

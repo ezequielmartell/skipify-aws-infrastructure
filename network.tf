@@ -14,6 +14,7 @@ resource "aws_subnet" "prod_public_1" {
     Name = "prod-public-1"
   }
 }
+
 resource "aws_subnet" "prod_public_2" {
   cidr_block        = "10.0.2.0/24"
   vpc_id            = aws_vpc.prod.id
@@ -32,6 +33,7 @@ resource "aws_subnet" "prod_private_1" {
     Name = "prod-private-1"
   }
 }
+
 resource "aws_subnet" "prod_private_2" {
   cidr_block        = "10.0.4.0/24"
   vpc_id            = aws_vpc.prod.id
@@ -78,7 +80,7 @@ resource "aws_route" "prod_internet_gateway" {
 
 # NAT gateway
 resource "aws_eip" "prod_nat_gateway" {
-  domain                       = "vpc"
+  domain                    = "vpc"
   associate_with_private_ip = "10.0.0.5"
   depends_on                = [aws_internet_gateway.prod]
 }

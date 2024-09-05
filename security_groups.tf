@@ -1,7 +1,7 @@
 # Security Group
 resource "aws_security_group" "prod_ecs_backend" {
-  name        = "prod-ecs-backend"
-  vpc_id      = aws_vpc.prod.id
+  name   = "prod-ecs-backend"
+  vpc_id = aws_vpc.prod.id
 
   #need to make this rule be a set group instead of hard coded like this
   ingress {
@@ -21,8 +21,8 @@ resource "aws_security_group" "prod_ecs_backend" {
 
 
 resource "aws_security_group" "prod_ecs_frontend" {
-  name        = "prod-ecs-frontend"
-  vpc_id      = aws_vpc.prod.id
+  name   = "prod-ecs-frontend"
+  vpc_id = aws_vpc.prod.id
 
   #need to make this rule be a set group instead of hard coded like this
   ingress {

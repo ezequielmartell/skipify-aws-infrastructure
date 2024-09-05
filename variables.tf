@@ -38,11 +38,11 @@ variable "prod_rds_instance_class" {
 
 variable "prod_base_domain" {
   description = "Base domain for production"
-  default = "ezdoes.xyz"
+  default     = "ezdoes.xyz"
 }
 variable "prod_domain" {
   description = "domain for production"
-  default = "skipify.ezdoes.xyz"
+  default     = "skipify.ezdoes.xyz"
 }
 
 variable "prod_backend_secret_key" {
