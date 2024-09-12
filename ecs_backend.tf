@@ -14,6 +14,7 @@ locals {
     sqs_name       = aws_sqs_queue.prod.name
   }
 }
+
 # Production cluster
 resource "aws_ecs_cluster" "prod" {
   name = "prod"
@@ -58,7 +59,7 @@ resource "aws_ecs_service" "prod_backend_web" {
   scheduling_strategy                = "REPLICA"
 
   network_configuration {
-    security_groups  = [aws_security_group.prod_ecs_backend.id]
+    security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
   }
@@ -105,7 +106,7 @@ resource "aws_ecs_service" "prod_backend_worker" {
   enable_execute_command             = true
 
   network_configuration {
-    security_groups  = [aws_security_group.prod_ecs_backend.id]
+    security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
   }
@@ -152,7 +153,7 @@ resource "aws_ecs_service" "prod_backend_beat" {
   enable_execute_command             = true
 
   network_configuration {
-    security_groups  = [aws_security_group.prod_ecs_backend.id]
+    security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
   }

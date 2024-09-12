@@ -19,7 +19,6 @@ variable "ecs_prod_retention_days" {
 }
 
 # RDS
-
 variable "prod_rds_db_name" {
   description = "RDS database name"
   default     = "django_aws"
@@ -35,16 +34,10 @@ variable "prod_rds_instance_class" {
   description = "RDS instance type"
   default     = "db.t4g.micro"
 }
-
-variable "prod_base_domain" {
-  description = "Base domain for production"
-  default     = "ezdoes.xyz"
-}
 variable "prod_domain" {
   description = "domain for production"
   default     = "skipify.ezdoes.xyz"
 }
-
 variable "prod_backend_secret_key" {
   description = "production Django's SECRET_KEY"
 }

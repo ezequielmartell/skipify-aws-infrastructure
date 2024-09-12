@@ -43,8 +43,14 @@ resource "aws_ecs_service" "prod_frontend_web" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.prod_target.arn
+    container_name   = "prod-frontend-web"
+    container_port   = 80
+  }
+
   network_configuration {
-    security_groups  = [aws_security_group.prod_ecs_frontend.id]
+    security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
   }

@@ -32,7 +32,7 @@ resource "aws_security_group" "rds_prod" {
     protocol        = "tcp"
     from_port       = "5432"
     to_port         = "5432"
-    security_groups = [aws_security_group.prod_ecs_backend.id]
+    security_groups = [aws_security_group.prod_ecs.id]
   }
 
   egress {
