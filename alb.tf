@@ -35,16 +35,16 @@ resource "aws_lb_target_group" "prod_backend_target" {
   vpc_id      = aws_vpc.prod.id
   target_type = "ip"
 
-  # health_check {
-  #   # path                = "/health/"
-  #   path                = "/"
-  #   port                = "traffic-port"
-  #   healthy_threshold   = 5
-  #   unhealthy_threshold = 2
-  #   timeout             = 2
-  #   interval            = 5
-  #   matcher             = "200"
-  # }
+  health_check {
+    path                = "/health/"
+    # path                = "/"
+    port                = "traffic-port"
+    healthy_threshold   = 5
+    unhealthy_threshold = 2
+    timeout             = 2
+    interval            = 5
+    matcher             = "200"
+  }
 }
 
 # Target listener for http:80
@@ -80,26 +80,10 @@ resource "aws_lb_listener" "prod_https" {
   certificate_arn = aws_acm_certificate_validation.prod_backend.certificate_arn
 }
 
-# forward back vs front ends
-resource "aws_lb_listener_rule" "static" {
+# ALB Target Rules
+resource "aws_lb_listener_rule" "static_admin" {
   listener_arn = aws_lb_listener.prod_https.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_frontend_target.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/static/*"]
-    }
-  }
-}
-# forward back vs front ends
-resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.prod_https.arn
-  priority     = 99
+  priority     = 50
 
   action {
     type             = "forward"
@@ -108,25 +92,98 @@ resource "aws_lb_listener_rule" "api" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/static/admin/*"]
+    }
+  }
+    
+}
+resource "aws_lb_listener_rule" "static_rest_framework" {
+  listener_arn = aws_lb_listener.prod_https.arn
+  priority     = 51
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+  }
+  condition {
+    path_pattern {
+      values = ["/static/rest_framework/*"]
     }
   }
 }
 resource "aws_lb_listener_rule" "staff" {
   listener_arn = aws_lb_listener.prod_https.arn
-  priority     = 98
+  priority     = 52
 
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.prod_backend_target.arn
   }
-
   condition {
     path_pattern {
       values = ["/staff/*"]
     }
   }
 }
+resource "aws_lb_listener_rule" "staff_files" {
+  listener_arn = aws_lb_listener.prod_https.arn
+  priority     = 53
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+  }
+  condition {
+    path_pattern {
+      values = ["/staff"]
+    }
+  }
+}
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.prod_https.arn
+  priority     = 55
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+  }
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+# resource "aws_lb_listener_rule" "api" {
+#   listener_arn = aws_lb_listener.prod_https.arn
+#   priority     = 99
+
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.prod_backend_target.arn
+#   }
+
+#   condition {
+#     path_pattern {
+#       values = ["/api/*"]
+#     }
+#   }
+# }
+# resource "aws_lb_listener_rule" "staff" {
+#   listener_arn = aws_lb_listener.prod_https.arn
+#   priority     = 98
+
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.prod_backend_target.arn
+#   }
+
+#   condition {
+#     path_pattern {
+#       values = ["/staff/*"]
+#     }
+#   }
+# }
 # Allow traffic from 80 and 443 ports only
 resource "aws_security_group" "prod_lb" {
   name        = "prod-lb"

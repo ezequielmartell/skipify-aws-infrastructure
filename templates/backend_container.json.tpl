@@ -56,6 +56,22 @@
       {
         "name": "CSRF_TRUSTED_ORIGIN",
         "value": "https://${domain}"
+      },
+      {
+        "name": "SENDGRID_API_KEY",
+        "value": "${sendgrid_api_key}"
+      },
+      {
+        "name": "CLIENT_ID",
+        "value": "${client_id}"
+      },
+      {
+        "name": "CLIENT_SECRET",
+        "value": "${client_secret}"
+      },
+      {
+        "name": "REDIRECT_URI",
+        "value": "${redirect_uri}"
       }
     ],
     "healthcheck": {

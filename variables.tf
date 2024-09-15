@@ -41,3 +41,15 @@ variable "prod_domain" {
 variable "prod_backend_secret_key" {
   description = "production Django's SECRET_KEY"
 }
+variable "prod_sendgrid_api_key" {
+  description = "Sendgrid API key"
+}
+variable "prod_client_id" {
+  description = "OAuth client ID"
+}
+variable "prod_client_secret" {
+  description = "OAuth client secret"
+}
+variable "prod_redirect_uri" {
+  description = "OAuth redirect URI"
+}

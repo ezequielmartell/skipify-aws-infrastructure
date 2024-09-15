@@ -12,6 +12,10 @@ locals {
     sqs_access_key = aws_iam_access_key.prod_sqs.id
     sqs_secret_key = aws_iam_access_key.prod_sqs.secret
     sqs_name       = aws_sqs_queue.prod.name
+    sendgrid_api_key = var.prod_sendgrid_api_key
+    client_id        = var.prod_client_id
+    client_secret    = var.prod_client_secret
+    redirect_uri     = var.prod_redirect_uri
   }
 }
 
