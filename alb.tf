@@ -1,3 +1,10 @@
+locals {
+  target_groups = [
+    "green",
+    "blue",
+  ]
+}
+
 # Application Load Balancer for production
 resource "aws_lb" "prod" {
   name               = "prod"
@@ -7,6 +14,36 @@ resource "aws_lb" "prod" {
   subnets            = [aws_subnet.prod_public_1.id, aws_subnet.prod_public_2.id]
 }
 
+# Codedeply target group for frontend
+resource "aws_lb_target_group" "frontend_tg" {
+  count = length(local.target_groups)
+
+  name        = "frontend-${var.lb_target_group_name}-${element(local.target_groups, count.index)}"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.prod.id
+  health_check {
+    matcher = "200,301,302,404"
+    path    = "/"
+  }
+
+}
+# Codedeply target group for backend
+resource "aws_lb_target_group" "backend_tg" {
+  count = length(local.target_groups)
+
+  name        = "backend-${var.lb_target_group_name}-${element(local.target_groups, count.index)}"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.prod.id
+  health_check {
+    matcher = "200,301,302,404"
+    path    = "/"
+  }
+
+}
 # Target group for frontend web application
 resource "aws_lb_target_group" "prod_frontend_target" {
   name        = "prod-frontend-target"
@@ -63,7 +100,16 @@ resource "aws_lb_listener" "prod_http" {
     }
   }
 }
+resource "aws_lb_listener" "prod_8080" {
+  load_balancer_arn = aws_lb.prod.id
+  port              = 8080
+  protocol          = "HTTP"
 
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend_tg[1].arn
+  }
+}
 # Target listener for https:443
 resource "aws_lb_listener" "prod_https" {
   load_balancer_arn = aws_lb.prod.id
@@ -74,7 +120,7 @@ resource "aws_lb_listener" "prod_https" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_frontend_target.arn
+    target_group_arn = aws_lb_target_group.frontend_tg[0].arn
   }
 
   certificate_arn = aws_acm_certificate_validation.prod_backend.certificate_arn
@@ -87,7 +133,7 @@ resource "aws_lb_listener_rule" "static_admin" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
   }
 
   condition {
@@ -103,7 +149,7 @@ resource "aws_lb_listener_rule" "static_rest_framework" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
   }
   condition {
     path_pattern {
@@ -117,7 +163,7 @@ resource "aws_lb_listener_rule" "staff" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
   }
   condition {
     path_pattern {
@@ -131,7 +177,7 @@ resource "aws_lb_listener_rule" "staff_files" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
   }
   condition {
     path_pattern {
@@ -145,7 +191,7 @@ resource "aws_lb_listener_rule" "api" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
   }
   condition {
     path_pattern {
@@ -154,36 +200,6 @@ resource "aws_lb_listener_rule" "api" {
   }
 }
 
-# resource "aws_lb_listener_rule" "api" {
-#   listener_arn = aws_lb_listener.prod_https.arn
-#   priority     = 99
-
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.prod_backend_target.arn
-#   }
-
-#   condition {
-#     path_pattern {
-#       values = ["/api/*"]
-#     }
-#   }
-# }
-# resource "aws_lb_listener_rule" "staff" {
-#   listener_arn = aws_lb_listener.prod_https.arn
-#   priority     = 98
-
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.prod_backend_target.arn
-#   }
-
-#   condition {
-#     path_pattern {
-#       values = ["/staff/*"]
-#     }
-#   }
-# }
 # Allow traffic from 80 and 443 ports only
 resource "aws_security_group" "prod_lb" {
   name        = "prod-lb"

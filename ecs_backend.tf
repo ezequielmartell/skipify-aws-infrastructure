@@ -62,15 +62,22 @@ resource "aws_ecs_service" "prod_backend_web" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
+  force_new_deployment = true
+  load_balancer {
+    target_group_arn = aws_lb_target_group.backend_tg[0].arn
+    container_name   = "prod-backend-web"
+    container_port   = 8000
+  }
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
   network_configuration {
     security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
   }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.prod_backend_target.arn
-    container_name   = "prod-backend-web"
-    container_port   = 8000
+  lifecycle {
+    ignore_changes = [task_definition, desired_count, load_balancer]
   }
 }
 
@@ -97,10 +104,10 @@ resource "aws_ecs_task_definition" "prod_backend_worker" {
   depends_on         = [aws_sqs_queue.prod, aws_db_instance.prod]
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
-  # lifecycle {
-  #   create_before_destroy = true
-  #   ignore_changes        = [container_definitions]
-  # }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_backend_worker" {
@@ -144,10 +151,10 @@ resource "aws_ecs_task_definition" "prod_backend_beat" {
   depends_on         = [aws_sqs_queue.prod, aws_db_instance.prod]
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
-  # lifecycle {
-  #   create_before_destroy = true
-  #   ignore_changes        = [container_definitions]
-  # }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_backend_beat" {

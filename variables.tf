@@ -53,3 +53,7 @@ variable "prod_client_secret" {
 variable "prod_redirect_uri" {
   description = "OAuth redirect URI"
 }
+variable "lb_target_group_name" {
+  type    = string
+  default = "tg"
+}

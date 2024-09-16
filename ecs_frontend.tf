@@ -43,15 +43,21 @@ resource "aws_ecs_service" "prod_frontend_web" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
+  force_new_deployment = true
   load_balancer {
-    target_group_arn = aws_lb_target_group.prod_frontend_target.arn
+    target_group_arn = aws_lb_target_group.frontend_tg[0].arn
     container_name   = "prod-frontend-web"
     container_port   = 80
   }
-
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
   network_configuration {
     security_groups  = [aws_security_group.prod_ecs.id]
     subnets          = [aws_subnet.prod_private_1.id, aws_subnet.prod_private_2.id]
     assign_public_ip = false
+  }
+  lifecycle {
+    ignore_changes = [task_definition, desired_count, load_balancer]
   }
 }
