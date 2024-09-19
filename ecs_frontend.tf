@@ -27,10 +27,10 @@ resource "aws_ecs_task_definition" "prod_frontend_web" {
   )
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
-  # lifecycle {
-  #   create_before_destroy = true
-  #   ignore_changes        = [container_definitions]
-  # }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_frontend_web" {
@@ -43,7 +43,7 @@ resource "aws_ecs_service" "prod_frontend_web" {
   launch_type                        = "FARGATE"
   scheduling_strategy                = "REPLICA"
 
-  force_new_deployment = true
+  # force_new_deployment = true
   load_balancer {
     target_group_arn = aws_lb_target_group.frontend_tg[0].arn
     container_name   = "prod-frontend-web"

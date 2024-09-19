@@ -34,6 +34,7 @@ variable "prod_rds_instance_class" {
   description = "RDS instance type"
   default     = "db.t4g.micro"
 }
+# Django Variables
 variable "prod_domain" {
   description = "domain for production"
   default     = "skipify.ezdoes.xyz"
@@ -53,6 +54,11 @@ variable "prod_client_secret" {
 variable "prod_redirect_uri" {
   description = "OAuth redirect URI"
 }
+variable "prod_debug" {
+  description = "Django Debug mode"
+  default     = "False"
+}
+# LB Variables
 variable "lb_target_group_name" {
   type    = string
   default = "tg"

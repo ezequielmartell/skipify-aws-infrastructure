@@ -16,6 +16,7 @@ locals {
     client_id        = var.prod_client_id
     client_secret    = var.prod_client_secret
     redirect_uri     = var.prod_redirect_uri
+    debug       = var.prod_debug
   }
 }
 
@@ -46,10 +47,10 @@ resource "aws_ecs_task_definition" "prod_backend_web" {
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
 
-  # lifecycle {
-  #   create_before_destroy = true
-  #   ignore_changes        = [container_definitions]
-  # }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_backend_web" {

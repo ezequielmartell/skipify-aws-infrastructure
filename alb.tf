@@ -39,49 +39,10 @@ resource "aws_lb_target_group" "backend_tg" {
   target_type = "ip"
   vpc_id      = aws_vpc.prod.id
   health_check {
-    matcher = "200,301,302,404"
-    path    = "/"
+    matcher = "200"
+    path    = "/health/"
   }
 
-}
-# Target group for frontend web application
-resource "aws_lb_target_group" "prod_frontend_target" {
-  name        = "prod-frontend-target"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.prod.id
-  target_type = "ip"
-
-  health_check {
-    # path                = "/health/"
-    path                = "/"
-    port                = "traffic-port"
-    healthy_threshold   = 5
-    unhealthy_threshold = 2
-    timeout             = 2
-    interval            = 5
-    matcher             = "200"
-  }
-}
-
-# Target group for backend web application
-resource "aws_lb_target_group" "prod_backend_target" {
-  name        = "prod-backend-target"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.prod.id
-  target_type = "ip"
-
-  health_check {
-    path                = "/health/"
-    # path                = "/"
-    port                = "traffic-port"
-    healthy_threshold   = 5
-    unhealthy_threshold = 2
-    timeout             = 2
-    interval            = 5
-    matcher             = "200"
-  }
 }
 
 # Target listener for http:80
@@ -89,7 +50,7 @@ resource "aws_lb_listener" "prod_http" {
   load_balancer_arn = aws_lb.prod.id
   port              = "80"
   protocol          = "HTTP"
-  depends_on        = [aws_lb_target_group.prod_frontend_target]
+  depends_on        = [aws_lb_target_group.frontend_tg[0]]
 
   default_action {
     type = "redirect"
@@ -100,29 +61,22 @@ resource "aws_lb_listener" "prod_http" {
     }
   }
 }
-resource "aws_lb_listener" "prod_8080" {
-  load_balancer_arn = aws_lb.prod.id
-  port              = 8080
-  protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.frontend_tg[1].arn
-  }
-}
 # Target listener for https:443
 resource "aws_lb_listener" "prod_https" {
   load_balancer_arn = aws_lb.prod.id
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  depends_on        = [aws_lb_target_group.prod_frontend_target]
+  depends_on        = [aws_lb_target_group.frontend_tg[0]]
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend_tg[0].arn
   }
-
+  lifecycle {
+  ignore_changes = [default_action]
+  }
   certificate_arn = aws_acm_certificate_validation.prod_backend.certificate_arn
 }
 
