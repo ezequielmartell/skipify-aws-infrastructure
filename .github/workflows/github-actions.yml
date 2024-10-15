@@ -9,6 +9,14 @@ permissions:
         id-token: write # This is required for requesting the JWT
         contents: read  # This is required for actions/checkout
 
+env:
+  TF_VAR_prod_rds_password: ${{ secrets.TF_VAR_prod_rds_password }}
+  TF_VAR_prod_backend_secret_key: ${{ secrets.TF_VAR_prod_backend_secret_key }}
+  TF_VAR_prod_sendgrid_api_key: ${{ secrets.TF_VAR_prod_sendgrid_api_key }}
+  TF_VAR_prod_client_id: ${{ secrets.TF_VAR_prod_client_id }}
+  TF_VAR_prod_client_secret: ${{ secrets.TF_VAR_prod_client_secret }}
+  TF_VAR_prod_redirect_uri: ${{ secrets.TF_VAR_prod_redirect_uri }}
+
 jobs:
   infrastructure:
       name: Deploy Infrastructure
