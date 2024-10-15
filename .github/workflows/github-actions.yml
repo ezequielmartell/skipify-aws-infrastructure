@@ -1,5 +1,5 @@
 name: GitHub Actions
-run-name: ${{ github.actor }} merged to main. Building and pushing docker image to Amazon ECR.
+run-name: ${{ github.actor }} merged to main. Planning and applying infrastructure changes.
 on:
   push:
     branches:
@@ -24,10 +24,6 @@ jobs:
           role-to-assume: arn:aws:iam::637423655132:role/github-actions_role
           aws-region: us-east-2
 
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
-
       - name: Setup OpenTofu
         uses: opentofu/setup-opentofu@v1
         with:
@@ -48,7 +44,7 @@ jobs:
 
       - name: OpenTofu Plan
         id: plan
-        run: tofu plan -no-color
+        run: tofu plan -input=false -no-color
         continue-on-error: true
       
       - name: OpenTofu Apply
