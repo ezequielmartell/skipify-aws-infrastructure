@@ -29,7 +29,7 @@ jobs:
       name: Deploy Infrastructure
       runs-on: ubuntu-latest
       steps:
-      
+      - run: echo ${{ github.event.inputs.sha }}
       - name: Check out my other private repo
         uses: actions/checkout@master
         with:
