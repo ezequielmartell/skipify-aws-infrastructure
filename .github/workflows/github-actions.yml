@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   depoly_infra:
+    name: Trigger Infrastructure Deployment Workflow
     uses: ./.github/workflows/deploy_infra.yml
     with:
       sha: ${{ github.sha }}

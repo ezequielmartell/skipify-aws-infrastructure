@@ -42,8 +42,8 @@ jobs:
         with:
           secret-ids: |
             TF-VAR-prod*
-            
-      - run: printenv
+
+      - run: echo $GITHUB_ENV
       - run: |
           for secret in $(env | grep '^TF_VAR_' | cut -d= -f1); do
             # Extract the part after TF_VAR_ and convert it to lowercase
@@ -53,7 +53,7 @@ jobs:
             value=$(printenv $secret)
             echo "${lower_case_name}=${value}" >> $GITHUB_ENV
           done
-      - run: printenv
+      - run: echo $GITHUB_ENV
 
       - name: Check out my other private repo
         uses: actions/checkout@master
