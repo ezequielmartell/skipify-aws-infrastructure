@@ -33,7 +33,6 @@ jobs:
         with:
           secret-ids: |
             TF-VAR-prod*
-      - run: printenv
 
   infrastructure:
       name: Deploy Infrastructure
@@ -41,6 +40,18 @@ jobs:
       needs: gather_secrets
       steps:
       - run: echo ${{ inputs.sha }}
+      - run: printenv
+      - run: |
+          for secret in $(env | grep '^TF_VAR_' | cut -d= -f1); do
+            # Extract the part after TF_VAR_ and convert it to lowercase
+            suffix=$(echo $secret | sed 's/TF_VAR_//g' | tr '[:upper:]' '[:lower:]')
+            # Reconstruct the variable name with TF_VAR in uppercase and the suffix in lowercase
+            lower_case_name="TF_VAR_${suffix}"
+            value=$(printenv $secret)
+            echo "${lower_case_name}=${value}" >> $GITHUB_ENV
+          done
+      - run: printenv
+
       - name: Check out my other private repo
         uses: actions/checkout@master
         with:
