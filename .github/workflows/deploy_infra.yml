@@ -45,6 +45,17 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: ezequielmartell/skipify-aws-infrastructure
+          
+      - name: Set environment variables dynamically
+        run: |
+          for secret in $(env | grep '^TF_VAR_' | cut -d= -f1); do
+            # Extract the part after TF_VAR_ and convert it to lowercase
+            suffix=$(echo $secret | sed 's/TF_VAR_//g' | tr '[:upper:]' '[:lower:]')
+            # Reconstruct the variable name with TF_VAR in uppercase and the suffix in lowercase
+            lower_case_name="TF_VAR_${suffix}"
+            value=$(printenv $secret)
+            echo "${lower_case_name}=${value}" >> $GITHUB_ENV
+          done
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
@@ -73,3 +84,4 @@ jobs:
       - name: OpenTofu Apply
         id: apply
         run: tofu apply -auto-approve -no-color
+        
