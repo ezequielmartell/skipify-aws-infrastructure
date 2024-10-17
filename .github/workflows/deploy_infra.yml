@@ -17,10 +17,19 @@ permissions:
         contents: read  # This is required for actions/checkout
 
 jobs:
-  gather_secrets:
-    name: Gather Secrets
-    runs-on: ubuntu-latest
-    steps:
+  # gather_secrets:
+  #   name: Gather Secrets
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+      
+
+  infrastructure:
+      name: Deploy Infrastructure
+      runs-on: ubuntu-latest
+      # needs: gather_secrets
+      steps:
+      - run: echo ${{ inputs.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
@@ -33,13 +42,7 @@ jobs:
         with:
           secret-ids: |
             TF-VAR-prod*
-
-  infrastructure:
-      name: Deploy Infrastructure
-      runs-on: ubuntu-latest
-      needs: gather_secrets
-      steps:
-      - run: echo ${{ inputs.sha }}
+            
       - run: printenv
       - run: |
           for secret in $(env | grep '^TF_VAR_' | cut -d= -f1); do
