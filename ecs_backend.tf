@@ -31,6 +31,7 @@ resource "aws_ecs_task_definition" "prod_backend_web" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
+  skip_destroy             = true
 
   family = "backend-web"
   container_definitions = templatefile(
@@ -90,6 +91,7 @@ resource "aws_ecs_task_definition" "prod_backend_worker" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
+  skip_destroy             = true
 
   family = "backend-worker"
   container_definitions = templatefile(
@@ -137,6 +139,7 @@ resource "aws_ecs_task_definition" "prod_backend_beat" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
+  skip_destroy             = true
 
   family = "backend-beat"
   container_definitions = templatefile(

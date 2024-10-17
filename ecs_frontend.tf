@@ -12,6 +12,7 @@ resource "aws_ecs_task_definition" "prod_frontend_web" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = 256
   memory                   = 512
+  skip_destroy             = true
 
   family = "frontend-web"
   container_definitions = templatefile(
