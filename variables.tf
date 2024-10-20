@@ -63,3 +63,16 @@ variable "lb_target_group_name" {
   type    = string
   default = "tg"
 }
+# Task Definition Variables
+# this isn't going to work long term since it will pull "latest" on manual deployments and going forward there will only be tagged versions.
+# latest will pull the most recent image tagged latest, not the most recent image. 
+# Might be fine, but a deployment should done instead
+# also, once tags are workring, it will make sense to have known good values stored somewhere to "boot up" from a known good state
+variable "backend_image_tag" {
+  description = "Backend task definition version"
+  default     = null  
+}
+variable "frontend_image_tag" {
+  description = "Frontend task definition version"
+  default     = null
+}
