@@ -7,10 +7,13 @@ on:
         description: 'Commit sha'
         required: true
         type: 'string'
-    # outputs:
-    #   greetingMessage: 
-    #     description: 'Generated greeting message'
-    #     value: ${{ steps.greeting.outputs.message }}
+    outputs:
+      task_def_arn_backend:
+        description: 'Task Definition ARN'
+        value: ${{ jobs.infrastructure.outputs.task_def_arn_backend }}
+      task_def_arn_frontend:
+        description: 'Task Definition ARN'
+        value: ${{ jobs.infrastructure.outputs.task_def_arn_frontend }}
 
 permissions:
         id-token: write # This is required for requesting the JWT
@@ -20,7 +23,9 @@ jobs:
   infrastructure:
       name: Deploy Infrastructure
       runs-on: ubuntu-latest
-      # needs: gather_secrets
+      outputs:
+        task_def_arn_backend: ${{ steps.get_task_def_arn.outputs.task_def_arn }}
+        task_def_arn_frontend: ${{ steps.get_task_def_arn.outputs.task_def_arn }}
       steps:
       - run: echo ${{ inputs.sha }}
 
@@ -80,6 +85,13 @@ jobs:
       - name: OpenTofu Apply
         id: apply
         run: tofu apply -auto-approve -no-color
+      
+      - name: Get Task Definition ARN
+        id: get_task_def_arn
+        run: |
+          echo "TASK_DEFINITION_ARN_BACKEND=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
+          echo "TASK_DEFINITION_ARN_FRONTEND=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
+
 
         # env:
         #   TF_VAR_prod_rds_password: ${{ env.TF_VAR_PROD_RDS_PASSWORD }}
@@ -88,4 +100,4 @@ jobs:
         #   TF_VAR_prod_client_id: ${{ env.TF_VAR_PROD_CLIENT_ID }}
         #   TF_VAR_prod_client_secret: ${{ env.TF_VAR_PROD_CLIENT_SECRET }}
         #   TF_VAR_prod_redirect_uri: ${{ env.TF_VAR_PROD_REDIRECT_URI }}
-          
+        
