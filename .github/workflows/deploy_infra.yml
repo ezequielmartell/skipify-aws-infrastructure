@@ -24,8 +24,8 @@ jobs:
       name: Deploy Infrastructure
       runs-on: ubuntu-latest
       outputs:
-        task_def_arn_backend: ${{ steps.get_task_def_arn.outputs.task_def_arn }}
-        task_def_arn_frontend: ${{ steps.get_task_def_arn.outputs.task_def_arn }}
+        task_def_arn_backend: ${{ steps.get_task_def_arn.outputs.task_def_arn_backend }}
+        task_def_arn_frontend: ${{ steps.get_task_def_arn.outputs.task_def_arn_frontend }}
       steps:
       - run: echo ${{ inputs.sha }}
 
@@ -91,8 +91,8 @@ jobs:
         run: |
           echo $(tofu output -raw task_definition_arn_backend)
           echo $(tofu output -raw task_definition_arn_frontend)
-          echo "TASK_DEFINITION_ARN_BACKEND=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
-          echo "TASK_DEFINITION_ARN_FRONTEND=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
+          echo "task_def_arn_backend=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
+          echo "task_def_arn_frontend=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
 
 
         # env:
