@@ -89,6 +89,8 @@ jobs:
       - name: Get Task Definition ARN
         id: get_task_def_arn
         run: |
+          echo $(tofu output -raw task_definition_arn_backend)
+          echo $(tofu output -raw task_definition_arn_frontend)
           echo "TASK_DEFINITION_ARN_BACKEND=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
           echo "TASK_DEFINITION_ARN_FRONTEND=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
 
