@@ -40,8 +40,6 @@ jobs:
         with:
           secret-ids: |
             TF-VAR-prod*
-
-      - run: echo $GITHUB_ENV
       - run: |
           for secret in $(env | grep '^TF_VAR_' | cut -d= -f1); do
             # Extract the part after TF_VAR_ and convert it to lowercase
@@ -51,9 +49,7 @@ jobs:
             value=$(printenv $secret)
             echo "${lower_case_name}=${value}" >> $GITHUB_ENV
           done
-      - run: echo $GITHUB_ENV
         
-
       - name: Check out my other private repo
         uses: actions/checkout@master
         with:
@@ -89,17 +85,7 @@ jobs:
       - name: Get Task Definition ARN
         id: get_task_def_arn
         run: |
-          echo $(tofu output -raw task_definition_arn_backend)
-          echo $(tofu output -raw task_definition_arn_frontend)
           echo "task_def_arn_backend=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
           echo "task_def_arn_frontend=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
 
-
-        # env:
-        #   TF_VAR_prod_rds_password: ${{ env.TF_VAR_PROD_RDS_PASSWORD }}
-        #   TF_VAR_prod_backend_secret_key: ${{ env.TF_VAR_PROD_BACKEND_SECRET_KEY }}
-        #   TF_VAR_prod_sendgrid_api_key: ${{ env.TF_VAR_PROD_SENDGRID_API_KEY }}       
-        #   TF_VAR_prod_client_id: ${{ env.TF_VAR_PROD_CLIENT_ID }}
-        #   TF_VAR_prod_client_secret: ${{ env.TF_VAR_PROD_CLIENT_SECRET }}
-        #   TF_VAR_prod_redirect_uri: ${{ env.TF_VAR_PROD_REDIRECT_URI }}
         

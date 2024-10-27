@@ -1,7 +1,7 @@
 locals {
   frontend_vars = {
     region    = var.region
-    image            = var.frontend_image_tag != null ? "${aws_ecr_repository.frontend.repository_url}:${var.frontend_image_tag}" : aws_ecr_repository.frontend.repository_url
+    image            = var.image_tag != null ? "${aws_ecr_repository.frontend.repository_url}:${var.image_tag}" : aws_ecr_repository.frontend.repository_url
     # image     = aws_ecr_repository.frontend.repository_url
     log_group = aws_cloudwatch_log_group.prod.name
   }
@@ -29,10 +29,10 @@ resource "aws_ecs_task_definition" "prod_frontend_web" {
   )
   execution_role_arn = aws_iam_role.ecs_task_execution.arn
   task_role_arn      = aws_iam_role.prod_backend_task.arn
-  # lifecycle {
-  #   create_before_destroy = true
-  #   ignore_changes        = [container_definitions]
-  # }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [container_definitions]
+  }
 }
 
 resource "aws_ecs_service" "prod_frontend_web" {
