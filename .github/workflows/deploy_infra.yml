@@ -7,13 +7,14 @@ on:
         description: 'Commit sha'
         required: true
         type: 'string'
+      type:
+        description: 'Type of infrastructure to deploy'
+        required: true
+        type: 'string'
     outputs:
-      task_def_arn_backend:
+      task_def_arn:
         description: 'Task Definition ARN'
-        value: ${{ jobs.infrastructure.outputs.task_def_arn_backend }}
-      task_def_arn_frontend:
-        description: 'Task Definition ARN'
-        value: ${{ jobs.infrastructure.outputs.task_def_arn_frontend }}
+        value: ${{ jobs.infrastructure.outputs.task_def_arn }}
 
 permissions:
         id-token: write # This is required for requesting the JWT
@@ -24,8 +25,7 @@ jobs:
       name: Deploy Infrastructure
       runs-on: ubuntu-latest
       outputs:
-        task_def_arn_backend: ${{ steps.get_task_def_arn.outputs.task_def_arn_backend }}
-        task_def_arn_frontend: ${{ steps.get_task_def_arn.outputs.task_def_arn_frontend }}
+        task_def_arn: ${{ steps.get_task_def_arn.outputs.task_def_arn }}
       steps:
       - run: echo ${{ inputs.sha }}
 
@@ -76,16 +76,15 @@ jobs:
 
       - name: OpenTofu Plan
         id: plan
-        run: tofu plan -input=false -no-color
+        run: tofu plan -target="aws_ecs_task_definition.prod_${{ inputs.type }}_web" -var="image_tag=${{ inputs.sha }}" -input=false -no-color
       
       - name: OpenTofu Apply
         id: apply
-        run: tofu apply -auto-approve -no-color
+        run: tofu apply -target="aws_ecs_task_definition.prod_${{ inputs.type }}_web" -var="image_tag=${{ inputs.sha }}" -auto-approve -no-color
       
       - name: Get Task Definition ARN
         id: get_task_def_arn
         run: |
-          echo "task_def_arn_backend=$(tofu output -raw task_definition_arn_backend)" >> $GITHUB_OUTPUT
-          echo "task_def_arn_frontend=$(tofu output -raw task_definition_arn_frontend)" >> $GITHUB_OUTPUT
+          echo "task_def_arn=$(tofu output -raw task_definition_arn_${{ inputs.type }})" >> $GITHUB_OUTPUT
 
         
