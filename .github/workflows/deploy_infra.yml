@@ -85,6 +85,7 @@ jobs:
       - name: Get Task Definition ARN
         id: get_task_def_arn
         run: |
+          echo "task_def_arn=$(tofu output -raw task_definition_arn_${{ inputs.type }})"
           echo "task_def_arn=$(tofu output -raw task_definition_arn_${{ inputs.type }})" >> $GITHUB_OUTPUT
 
         
