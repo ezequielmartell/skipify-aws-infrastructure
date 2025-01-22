@@ -54,7 +54,7 @@
         "value": "true"
       },
       {
-        "name": "CSRF_TRUSTED_ORIGIN",
+        "name": "CSRF_TRUSTED_ORIGINS",
         "value": "https://${domain}"
       },
       {
