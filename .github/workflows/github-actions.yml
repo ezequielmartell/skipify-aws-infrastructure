@@ -1,11 +1,13 @@
 name: Call Deployment Workflow
 run-name: ${{ github.actor }} called deployment workflow
-# on:
-  # push:
-  #   branches:
-  #     - main
-on: workflow_dispatch
 
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Type of deployment'
+        required: true
+      
 permissions:
         id-token: write # This is required for requesting the JWT
         contents: read  # This is required for actions/checkout 
@@ -16,4 +18,4 @@ jobs:
     uses: ./.github/workflows/deploy_infra.yml
     with:
       sha: ${{ github.sha }}
-      type:
+      type: ${{ github.event.inputs.type }}
