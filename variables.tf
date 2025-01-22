@@ -56,7 +56,7 @@ variable "prod_redirect_uri" {
 }
 variable "prod_debug" {
   description = "Django Debug mode"
-  default     = "True"
+  default     = "False"
 }
 # LB Variables
 variable "lb_target_group_name" {
